@@ -1,0 +1,142 @@
+<!-- 
+    OmniGraph Resilient Storefront Loader (DSI)
+    
+    This Liquid snippet should be included in your theme's layout file (e.g., theme.liquid) 
+    right before the closing </head> tag. It executes the Decoupled Schema Injection (DSI) 
+    strategy for optimal SEO speed and reliability.
+-->
+
+{% comment %}
+    Layer 3: Minimal Liquid Fallback (The ultimate defense against failure)
+    In a complete failure scenario (DSI Engine down, LocalStorage empty), this provides 
+    the absolute minimum required Schema markup directly from Liquid.
+{% endcomment %}
+<script type="application/ld+json" id="omnigraph-liquid-fallback">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "url": {{ shop.url | append: product.url | json }},
+  "sku": {{ product.selected_or_first_available_variant.sku | json }},
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": {{ shop.currency | json }},
+    "price": {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | json }}
+  }
+}
+</script>
+
+<script>
+(function() {
+    // --- Configuration ---
+    const DSI_ENDPOINT = 'YOUR_PRODUCTION_DSI_SERVER_URL/api/dsi/schema';
+    const DSI_API_KEY = 'dsi_api_key_for_client_requests'; // Must match the key in server.js
+    const APP_ID = '{{ __app_id | default: 'default-app-id' }}';
+    const CACHE_KEY = 'omnigraph_schema_{{ product.id }}';
+    const ELEMENT_ID = 'omnigraph-dsi-schema';
+
+    // --- Product Data Extraction (Payload for the DSI Engine) ---
+    // We send a minimal, standardized data map to the DSI Engine for processing.
+    const productData = {
+        'product.title': {{ product.title | json }},
+        'product.tags': {{ product.tags | json }},
+        'product.vendor': {{ product.vendor | json }},
+        // Add all necessary fields here as defined in the Admin UI's mockSources:
+        'review_count': {{ product.metafields.reviews.count | default: 0 | json }},
+        'average_rating': {{ product.metafields.reviews.rating | default: 0.0 | json }},
+        'current_price': {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | json }},
+        'inventory_quantity': {{ product.selected_or_first_available_variant.inventory_quantity | default: 0 | json }},
+        'product.metafields.custom.isbn': {{ product.metafields.custom.isbn | json }},
+        'product.metafields.custom.fabric_type': {{ product.metafields.custom.fabric_type | json }},
+        // ... and so on
+    };
+
+    /**
+     * Helper function to inject schema JSON-LD into the <head>.
+     * It replaces the Liquid fallback and ensures only one set of Schema is present.
+     * @param {string} jsonLdString - The final, processed JSON-LD string.
+     */
+    function injectSchema(jsonLdString) {
+        // 1. Remove the Liquid fallback element
+        const fallback = document.getElementById('omnigraph-liquid-fallback');
+        if (fallback) {
+            fallback.remove();
+        }
+
+        // 2. Create the new, dynamic DSI schema tag
+        let script = document.getElementById(ELEMENT_ID);
+        if (!script) {
+            script = document.createElement('script');
+            script.setAttribute('type', 'application/ld+json');
+            script.setAttribute('id', ELEMENT_ID);
+            document.head.appendChild(script);
+        }
+
+        // 3. Inject the content
+        script.textContent = jsonLdString;
+    }
+
+    /**
+     * Layer 2: Local Storage Fallback (Instant speed, stale data)
+     */
+    function loadFromCache() {
+        try {
+            const cachedSchema = localStorage.getItem(CACHE_KEY);
+            if (cachedSchema) {
+                injectSchema(cachedSchema);
+                console.log('OmniGraph DSI: Schema loaded instantly from cache (Layer 2).');
+                return true;
+            }
+        } catch (e) {
+            console.error('OmniGraph DSI: Failed to read from LocalStorage.', e);
+        }
+        return false;
+    }
+
+    /**
+     * Layer 1: Asynchronous Fetch (Highest priority, fresh data)
+     */
+    async function fetchAndInjectSchema() {
+        try {
+            const response = await fetch(DSI_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-DSI-API-KEY': DSI_API_KEY,
+                },
+                body: JSON.stringify({ appId: APP_ID, productData: productData })
+            });
+
+            if (!response.ok) {
+                throw new Error(`DSI Engine error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const finalSchema = data.schema;
+
+            // 1. Inject the fresh data
+            injectSchema(finalSchema);
+            console.log('OmniGraph DSI: Schema loaded live from DSI Engine (Layer 1).');
+
+            // 2. Update the cache for Layer 2 fallback
+            try {
+                localStorage.setItem(CACHE_KEY, finalSchema);
+            } catch (e) {
+                console.warn('OmniGraph DSI: Failed to write to LocalStorage.');
+            }
+
+        } catch (error) {
+            console.error('OmniGraph DSI: Live fetch failed. Relying on fallback.', error);
+            // If the live fetch fails, ensure Layer 2 is attempted if not already run
+            if (!loadFromCache()) {
+                // If cache fails too, Layer 3 (Liquid) is already in place.
+                console.log('OmniGraph DSI: Failed all dynamic layers. Using Liquid fallback (Layer 3).');
+            }
+        }
+    }
+
+    // --- Execution Flow ---
+    // Start the fetch immediately, but ensure the Liquid fallback is available instantly.
+    fetchAndInjectSchema();
+})();
+</script>
