@@ -36,3 +36,34 @@ Code Meaning Action Required
 401 Invalid DSI Key Re-authenticate Admin UI
 409 Node Collision Conflict resolution required
 503 Sync Lag Reduce pulse frequency
+# DSI Engine: Full API Specification v1.0.4
+
+### 4. omnigraph_definition.md (Extended Brand & Logic)
+```markdown
+# OmniGraph: Strategic Brand & Logic Definition
+
+## 💎 Brand Vision
+To define the gold standard for real-time data integration in the modern web. OmniGraph isn't just a tool; it's a visual nervous system for digital storefronts.
+
+## 🎨 Visual Identity Standards
+- **Color Palette:**
+  - **DSI Blue:** `#38bdf8` (Primary Action)
+  - **Engine Slate:** `#0f172a` (Background)
+  - **Alert Crimson:** `#ef4444` (Sync Error)
+- **UI Physics:** All graph transitions must use a 300ms cubic-bezier ease-in-out to maintain a "fluid" feel.
+
+## ⚙️ DSI Logic Principles
+The Dynamic Sync Integration (DSI) is built on three pillars:
+
+1. **The Heartbeat:**
+   The engine expects a "ping" from the storefront every 3000ms. If the ping fails twice, the loader enters "Stasis Mode."
+
+2. **Node Validation:**
+   Before any data is rendered, it is checked against a schema. If the data vector is malformed, the node is quarantined to prevent the UI from crashing.
+
+3. **Atomic Updates:**
+   Only the changed parts of the graph are transmitted. This keeps the performance high even on mobile devices.
+
+## 📈 Scalability Goals
+- Support up to 10,000 simultaneous data nodes.
+- Maintain sub-50ms latency for global sync.
