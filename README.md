@@ -1,20 +1,31 @@
-# OmniGraph System 
+# OmniGraph System: Professional Edition
+**Version:** 1.0.4-Stable  
+**Lead Architect:** Nate  
 
-## Project Overview
-OmniGraph is a high-performance data visualization framework powered by the **DSI (Dynamic Sync Integration) Engine**. This repository contains the core administrative interface, the backend synchronization server, and the storefront integration assets.
+## 🌐 Project Philosophy
+OmniGraph is built to bridge the gap between complex data visualization and high-speed e-commerce storefronts. By utilizing the proprietary **DSI (Dynamic Sync Integration)** engine, we ensure that data is not just displayed, but synchronized in real-time across the entire stack.
 
-## System Components
-- **Admin UI (`OmniGraphApp.jsx`):** A React-based dashboard for monitoring node health and system telemetry.
-- **Backend (`server.js`):** The Node.js DSI Engine that manages real-time data streaming and API requests.
-- **Storefront (`omnigraph-loader.liquid`):** A lightweight loader for embedding OmniGraph visuals into e-commerce environments.
+## 🛠 Technical Stack
+- **Frontend:** React 18+ with Tailwind CSS for the Admin UI.
+- **Backend:** Node.js, Express, and Socket.io for DSI pulse-streaming.
+- **Integration:** Shopify-compatible Liquid templating and vanilla JS injection.
+- **Security:** Helmet.js, JWT handshaking, and DSI-X-Signature headers.
 
-## Quick Start
-1. **Environment:** Ensure Node.js v16+ is installed on your system.
-2. **Installation:** Run `npm install` to gather dependencies (Express, Cors, Helmet, etc.).
-3. **Execution:** Start the engine using `node server.js`.
-4. **Build:** For the Admin UI, use `npm run build` to generate the production React bundle.
+## 📂 Directory Structure
+- `/admin` - Contains `OmniGraphApp.jsx` and UI assets.
+- `/server` - Core DSI Engine logic (`server.js`).
+- `/templates` - Liquid loader for storefronts.
+- `/docs` - API Specs and Brand definitions.
 
-## Technical Architecture
-The system utilizes a "Pulse-Sync" architecture where data nodes are validated against the master DSI definition before being rendered in the storefront loader.
+## 🚀 Detailed Deployment
+1. **Server Setup:**
+   - Navigate to `/server`.
+   - Create a `.env` file (see `dsi_api_spec.md` for required keys).
+   - Run `npm install && npm start`.
+2. **UI Initialization:**
+   - Navigate to `/admin`.
+   - Run `npm install && npm run build`.
+   - Point the `VITE_DSI_ENDPOINT` to your server URL.
 
-
+## 🛡 Security Protocol
+All transactions between the Admin UI and the DSI Engine are encrypted. The engine uses a "Quiet-Fail" system where if a node loses sync, the frontend preserves the last known good state to prevent storefront breakage.
