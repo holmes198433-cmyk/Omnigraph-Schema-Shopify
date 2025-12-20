@@ -1,3 +1,13 @@
+/**
+ * © 2025 OmniGraph Solutions. All Rights Reserved.
+ * PROPRIETARY AND CONFIDENTIAL.
+ * * This code and the algorithms contained herein (including DSI™ and DSOE™ protocols)
+ * are the intellectual property of OmniGraph Solutions. Unauthorized copying, 
+ * modification, or distribution is strictly prohibited.
+ * * Identifier: OMNI-DSI-V1.0
+ */
+
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Settings, GitBranch, Terminal, CheckCircle, XCircle, ChevronDown, Plus, Trash2, Loader, Save, Code, Zap, RefreshCw } from 'lucide-react';
 
